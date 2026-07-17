@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI in Pennsylvania K-12 Education: Superintendent Perspectives Survey</title>
+<style>
+  :root{
+    --navy:#1e3a5f; --navy-dark:#152a46; --accent:#2e6da4; --bg:#f4f6f9;
+    --card:#ffffff; --border:#d8dee7; --text:#1f2937; --muted:#5b6472;
+    --green:#1e7f4f; --red:#b3392e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.55;}
+  header.banner{background:var(--navy);color:#fff;padding:28px 20px 22px;text-align:center;}
+  header.banner h1{margin:0 0 6px;font-size:1.45rem;font-weight:700;}
+  header.banner p{margin:0;color:#c9d6e6;font-size:.95rem;}
+  #progressWrap{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--border);
+    padding:10px 20px;display:none;}
+  #progressLabel{font-size:.85rem;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;}
+  #progressBar{height:8px;background:#e3e8ef;border-radius:4px;overflow:hidden;}
+  #progressFill{height:100%;width:0;background:var(--accent);border-radius:4px;transition:width .3s;}
+  main{max-width:820px;margin:0 auto;padding:24px 16px 80px;}
+  .section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:28px 26px;margin-bottom:20px;display:none;}
+  .section-card.active{display:block;}
+  h2.section-title{margin:0 0 4px;color:var(--navy);font-size:1.25rem;}
+  p.section-sub{margin:0 0 22px;color:var(--muted);font-size:.95rem;}
+  fieldset{border:none;margin:0 0 26px;padding:0 0 22px;border-bottom:1px solid #eef1f5;}
+  fieldset:last-of-type{border-bottom:none;}
+  legend,.qlabel{font-weight:600;margin-bottom:10px;display:block;padding:0;}
+  .req{color:var(--red);font-weight:700;}
+  .opt-note{font-weight:400;color:var(--muted);font-size:.85rem;}
+  .choice{display:flex;align-items:flex-start;gap:9px;padding:7px 10px;border-radius:6px;cursor:pointer;}
+  .choice:hover{background:#f0f4f9;}
+  .choice input{margin-top:4px;flex:none;}
+  input[type=text],input[type=email],select,textarea{
+    width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font:inherit;background:#fff;}
+  textarea{min-height:96px;resize:vertical;}
+  input:focus,select:focus,textarea:focus,button:focus{outline:3px solid #9dc1e4;outline-offset:1px;}
+  table.matrix{width:100%;border-collapse:collapse;font-size:.9rem;}
+  table.matrix th,table.matrix td{padding:8px 6px;text-align:center;border-bottom:1px solid #eef1f5;}
+  table.matrix th:first-child,table.matrix td:first-child{text-align:left;font-weight:500;width:34%;}
+  table.matrix thead th{color:var(--muted);font-weight:600;font-size:.8rem;}
+  .hint{font-size:.85rem;color:var(--muted);margin:2px 0 10px;}
+  .nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:8px;}
+  button{font:inherit;font-weight:600;border-radius:8px;padding:12px 26px;cursor:pointer;border:1px solid var(--border);}
+  button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  button.primary:hover{background:var(--navy-dark);}
+  button.ghost{background:#fff;color:var(--navy);}
+  button.ghost:hover{background:#f0f4f9;}
+  .error-msg{display:none;background:#fdecea;color:var(--red);border:1px solid #f3c1bc;
+    border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:.92rem;}
+  .conditional{display:none;margin-top:12px;padding:12px;background:#f7f9fc;border-radius:8px;}
+  .rank-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .rank-row label{flex:none;width:70px;font-weight:600;}
+  #confirmation{display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:32px 28px;}
+  #confirmation h2{color:var(--green);margin-top:0;}
+  .mailto-btn{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;
+    padding:12px 26px;border-radius:8px;font-weight:600;margin:10px 0;}
+  #responseText{width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;}
+  .steps{background:#f0f6ee;border:1px solid #cfe3ca;border-radius:8px;padding:14px 18px;margin:14px 0;}
+  @media (max-width:640px){
+    table.matrix thead{display:none;}
+    table.matrix, table.matrix tbody, table.matrix tr, table.matrix td{display:block;width:100%;}
+    table.matrix tr{border:1px solid var(--border);border-radius:8px;margin-bottom:12px;padding:10px;}
+    table.matrix td{text-align:left;border:none;padding:4px 2px;}
+    table.matrix td:first-child{font-weight:600;width:100%;}
+    table.matrix td label.cell-label{display:flex;align-items:center;gap:8px;}
+  }
+  @media print{
+    #progressWrap,.nav-row,button{display:none!important;}
+    .section-card{display:block!important;border:none;page-break-inside:avoid;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>AI in Pennsylvania K-12 Education</h1>
+  <p>Superintendent Perspectives Survey &middot; ~15 minutes &middot; Survey v1.0</p>
+</header>
+
+<div id="progressWrap">
+  <div id="progressLabel"><span id="sectionLabel">Section 1 of 5</span><span id="pctLabel">0% complete</span></div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+</div>
+
+<main>
+<form id="surveyForm" onsubmit="return false;">
+
+<!-- ============ SECTION 0: WELCOME ============ -->
+<div class="section-card active" data-section="0">
+  <h2 class="section-title">Welcome</h2>
+  <p>Thank you for taking part in this survey of Pennsylvania K-12 school district superintendents. Your responses will help build an accurate picture of how district leaders across the Commonwealth understand artificial intelligence (AI), how districts are currently using it, what concerns leaders have, and where AI might help improve education, operations, or persistent district challenges.</p>
+  <p>Results will be reported <strong>in aggregate only</strong>. Individual responses and district names will not be published or shared. Naming your district is optional.</p>
+  <p>There are no "right" answers. Skeptical, cautious, and enthusiastic perspectives are all equally valuable. Most questions are optional — answer what you can.</p>
+  <p>The survey takes about 12&ndash;15 minutes. When you finish, your answers will download as a small file that you'll email back to us (instructions provided at the end).</p>
+  <div class="error-msg" id="err0">Please check the consent box to begin.</div>
+  <label class="choice" style="font-weight:600;">
+    <input type="checkbox" id="consent" name="consent" value="yes">
+    <span>I understand the purpose of this survey and consent to participate. <span class="req">*</span></span>
+  </label>
+  <div class="nav-row" style="justify-content:flex-end;">
+    <button type="button" class="primary" onclick="nextSection()">Begin Survey &rarr;</button>
+  </div>
+</div>
+
+<!-- ============ SECTION 1: DISTRICT PROFILE ============ -->
+<div class="section-card" data-section="1">
+  <h2 class="section-title">Section 1: About Your District</h2>
+  <p class="section-sub">A few context questions so responses can be compared across district types.</p>
+  <div class="error-msg" id="err1"></div>
+
+  <fieldset>
+    <label class="qlabel" for="q1">Q1. District name <span class="opt-note">(optional — used only for de-duplication, never published)</span></label>
+    <input type="text" id="q1" name="q1_district_name" autocomplete="organization">
+  </fieldset>
+
+  <fieldset>
+    <label class="qlabel" for="q2">Q2. County</label>
+    <select id="q2" name="q2_county"><option value="">Select a county…</option></select>
+  </fieldset>
+
+  <fieldset id="fs_q3"><legend>Q3. How would you describe your district?</legend></fieldset>
+  <fieldset id="fs_q4"><legend>Q4. Total student enrollment</legend></fieldset>
+  <fieldset id="fs_q5"><legend>Q5. Years serving as a superintendent (any district)</legend></fieldset>
+  <fieldset id="fs_q6"><legend>Q6. Approximate share of students who are economically disadvantaged</legend></fieldset>
+  <fieldset id="fs_q7"><legend>Q7. Does your district have a designated technology director (or equivalent role)?</legend></fieldset>
+
+  <div class="nav-row">
+    <button type="button" class="ghost" onclick="prevSection()">&larr; Back</button>
+    <button type="button" class="primary" onclick="nextSection()">Next &rarr;</button>
+  </div>
+</div>
+
+<!-- ============ SECTION 2: UNDERSTANDING OF AI ============ -->
+<div class="section-card" data-section="2">
+  <h2 class="section-title">Section 2: Your Understanding of AI</h2>
+  <p class="section-sub">"Generative AI" means tools like ChatGPT, Gemini, Claude, or Copilot that produce text, images, or answers on request. "AI" more broadly includes features built into existing software, such as adaptive learning platforms or automated analytics.</p>
+  <div class="error-msg" id="err2"></div>
+
+  <fieldset id="fs_q8"><legend>Q8. Overall, how familiar are you with AI concepts and tools?</legend></fieldset>
+
+  <fieldset>
+    <legend>Q9. How familiar are you with each of the following?</legend>
+    <p class="hint">1 = Not at all familiar &middot; 5 = Very familiar</p>
+    <div id="matrix_q9"></div>
+  </fieldset>
+
+  <fieldset id="fs_q10"><legend>Q10. Where do you currently get information about AI? <span class="opt-note">(select all that apply)</span></legend></fieldset>
+  <fieldset id="fs_q11"><legend>Q11. How often do you personally use generative AI tools (for any purpose)?</legend></fieldset>
+  <fieldset id="fs_q12"><legend>Q12. How confident would you be explaining to your school board what generative AI can and cannot reliably do?</legend></fieldset>
+  <fieldset id="fs_q13"><legend>Q13. Have you or your cabinet received any formal AI training or professional development?</legend></fieldset>
+
+  <div class="nav-row">
+    <button type="button" class="ghost" onclick="prevSection()">&larr; Back</button>
+    <button type="button" class="primary" onclick="nextSection()">Next &rarr;</button>
+  </div>
+</div>
+
+<!-- ============ SECTION 3: CURRENT USE ============ -->
+<div class="section-card" data-section="3">
+  <h2 class="section-title">Section 3: Current Use of AI in Your District</h2>
+  <p class="section-sub">Think about actual practice in your district today — formal or informal.</p>
+  <div class="error-msg" id="err3"></div>
+
+  <fieldset id="fs_q14"><legend>Q14. Which best describes your district's overall stage of AI adoption? <span class="req">*</span></legend></fieldset>
+  <fieldset id="fs_q15"><legend>Q15. Current <em>instructional</em> uses of AI in your district <span class="opt-note">(select all that apply)</span></legend></fieldset>
+  <fieldset id="fs_q16"><legend>Q16. Current <em>operational</em> uses of AI in your district <span class="opt-note">(select all that apply)</span></legend></fieldset>
+
+  <fieldset>
+    <div id="fs_q17"><legend class="qlabel">Q17. What is the status of AI policy in your district?</legend></div>
+    <div class="conditional" id="cond_q17a">
+      <span class="qlabel">Q17a. What does your policy (or draft) cover? <span class="opt-note">(select all that apply)</span></span>
+      <div id="fs_q17a"></div>
+    </div>
+  </fieldset>
+
+  <fieldset id="fs_q18"><legend>Q18. Are <em>teachers</em> permitted to use generative AI for their work?</legend></fieldset>
+  <fieldset id="fs_q19"><legend>Q19. Are <em>students</em> permitted to use generative AI for schoolwork?</legend></fieldset>
+  <fieldset id="fs_q20"><legend>Q20. Roughly what percentage of your teachers actively use AI tools?</legend></fieldset>
+
+  <fieldset>
+    <label class="qlabel" for="q21">Q21. Describe the most successful use of AI in your district so far, if any. <span class="opt-note">(optional)</span></label>
+    <textarea id="q21" name="q21_success_story"></textarea>
+  </fieldset>
+
+  <div class="nav-row">
+    <button type="button" class="ghost" onclick="prevSection()">&larr; Back</button>
+    <button type="button" class="primary" onclick="nextSection()">Next &rarr;</button>
+  </div>
+</div>
+
+<!-- ============ SECTION 4: CONCERNS ============ -->
+<div class="section-card" data-section="4">
+  <h2 class="section-title">Section 4: Concerns About AI</h2>
+  <p class="section-sub">Candid answers here are especially valuable.</p>
+  <div class="error-msg" id="err4"></div>
+
+  <fieldset>
+    <legend>Q22. How concerned are you about each of the following? <span class="req">*</span></legend>
+    <div id="matrix_q22"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Q23. Of the items above, which are your top three concerns?</legend>
+    <div class="rank-row"><label for="q23r1">1st:</label><select id="q23r1" name="q23_rank1"></select></div>
+    <div class="rank-row"><label for="q23r2">2nd:</label><select id="q23r2" name="q23_rank2"></select></div>
+    <div class="rank-row"><label for="q23r3">3rd:</label><select id="q23r3" name="q23_rank3"></select></div>
+  </fieldset>
+
+  <fieldset id="fs_q24"><legend>Q24. Has your district experienced any AI-related incidents? <span class="opt-note">(select all that apply)</span></legend></fieldset>
+  <fieldset id="fs_q25"><legend>Q25. What would most reduce your concerns about AI? <span class="opt-note">(select all that apply)</span></legend></fieldset>
+
+  <fieldset>
+    <label class="qlabel" for="q26">Q26. What is your single biggest worry about AI in your district? <span class="opt-note">(optional)</span></label>
+    <textarea id="q26" name="q26_biggest_worry"></textarea>
+  </fieldset>
+
+  <div class="nav-row">
+    <button type="button" class="ghost" onclick="prevSection()">&larr; Back</button>
+    <button type="button" class="primary" onclick="nextSection()">Next &rarr;</button>
+  </div>
+</div>
+
+<!-- ============ SECTION 5: OPPORTUNITIES ============ -->
+<div class="section-card" data-section="5">
+  <h2 class="section-title">Section 5: Opportunities &amp; What You Need</h2>
+  <p class="section-sub">Where could AI actually help — and what support would make it possible?</p>
+  <div class="error-msg" id="err5"></div>
+
+  <fieldset>
+    <legend>Q27. How much potential does AI have in each area for <em>your</em> district? <span class="req">*</span></legend>
+    <div id="matrix_q27"></div>
+  </fieldset>
+
+  <fieldset>
+    <label class="qlabel" for="q28">Q28. If AI could solve ONE problem in your district tomorrow, what would it be? <span class="req">*</span></label>
+    <textarea id="q28" name="q28_one_problem" required></textarea>
+  </fieldset>
+
+  <fieldset id="fs_q29"><legend>Q29. What is your district's top AI priority for the next 12 months?</legend></fieldset>
+  <fieldset id="fs_q30"><legend>Q30. What support would be most useful, and from whom? <span class="opt-note">(select all that apply)</span></legend></fieldset>
+
+  <fieldset>
+    <div id="fs_q31"><legend class="qlabel">Q31. Would you be willing to participate in a brief follow-up conversation?</legend></div>
+    <div class="conditional" id="cond_q31a">
+      <label class="qlabel" for="q31a">Q31a. Best email address for follow-up:</label>
+      <input type="email" id="q31a" name="q31a_email" autocomplete="email">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <label class="qlabel" for="q32">Q32. Anything else you'd like to share about AI and your district? <span class="opt-note">(optional)</span></label>
+    <textarea id="q32" name="q32_final_comments"></textarea>
+  </fieldset>
+
+  <div class="nav-row">
+    <button type="button" class="ghost" onclick="prevSection()">&larr; Back</button>
+    <button type="button" class="primary" onclick="submitSurvey()">Submit &amp; Download My Responses</button>
+  </div>
+</div>
+
+</form>
+
+<!-- ============ CONFIRMATION ============ -->
+<div id="confirmation">
+  <div id="confSuccess" style="display:none;">
+    <h2>&#10003; Thank you — your response has been submitted</h2>
+    <p>Your answers were sent successfully. Nothing further is needed. We appreciate your time and perspective.</p>
+    <p style="color:var(--muted);font-size:.9rem;">If you'd like a copy of your responses for your records:</p>
+    <p><button type="button" class="ghost" onclick="downloadAgain()">Download a Copy of My Responses</button></p>
+  </div>
+  <div id="confFallback" style="display:none;">
+    <h2>&#10003; Thank you — one last step</h2>
+    <p>Automatic submission wasn't available, so your responses have been saved to your computer as a CSV file (and a JSON backup), typically in your <strong>Downloads</strong> folder.</p>
+    <div class="steps">
+      <strong>To complete your submission:</strong>
+      <ol style="margin:8px 0 0;">
+        <li>Find the downloaded file that begins with <code>AI_Survey_Response_</code></li>
+        <li>Attach it to an email to <strong>daren.coudriet@gmail.com</strong></li>
+        <li>Send — that's it. Thank you!</li>
+      </ol>
+    </div>
+    <a class="mailto-btn" id="mailtoLink" href="#">Open Email to Send Response</a>
+    <p style="color:var(--muted);font-size:.9rem;">If your browser blocked the download, copy the text below and paste it into the email instead:</p>
+    <textarea id="responseText" readonly aria-label="Your survey responses as text"></textarea>
+    <p style="margin-top:14px;"><button type="button" class="ghost" onclick="downloadAgain()">Download Files Again</button></p>
+  </div>
+</div>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- CONFIG & DATA ---------------- */
+var RETURN_EMAIL = "daren.coudriet@gmail.com";
+/* Web3Forms access key. Get yours free at https://web3forms.com — enter your
+   email, and the key arrives instantly by mail (no account needed). Paste it
+   below. The key is public by design; it is safe to ship in this file.
+   If left as-is or the service is unreachable, the survey automatically falls
+   back to the download-and-email method, so respondents are never stuck. */
+var WEB3FORMS_ACCESS_KEY = "YOUR_ACCESS_KEY_HERE";
+var FORM_ENDPOINT = "https://api.web3forms.com/submit";
+var SURVEY_VERSION = "v1.2";
+var startTime = Date.now();
+
+var COUNTIES = ["Adams","Allegheny","Armstrong","Beaver","Bedford","Berks","Blair","Bradford","Bucks","Butler","Cambria","Cameron","Carbon","Centre","Chester","Clarion","Clearfield","Clinton","Columbia","Crawford","Cumberland","Dauphin","Delaware","Elk","Erie","Fayette","Forest","Franklin","Fulton","Greene","Huntingdon","Indiana","Jefferson","Juniata","Lackawanna","Lancaster","Lawrence","Lebanon","Lehigh","Luzerne","Lycoming","McKean","Mercer","Mifflin","Monroe","Montgomery","Montour","Northampton","Northumberland","Perry","Philadelphia","Pike","Potter","Schuylkill","Snyder","Somerset","Sullivan","Susquehanna","Tioga","Union","Venango","Warren","Washington","Wayne","Westmoreland","Wyoming","York"];
+
+/* Radio question definitions: id, name, options */
+var RADIOS = {
+  fs_q3:{name:"q3_district_type",opts:["Urban","Suburban","Rural","Mixed"]},
+  fs_q4:{name:"q4_enrollment",opts:["Fewer than 1,000","1,000–2,499","2,500–4,999","5,000–9,999","10,000 or more"]},
+  fs_q5:{name:"q5_years_super",opts:["Less than 2 years","2–5 years","6–10 years","More than 10 years"]},
+  fs_q6:{name:"q6_econ_disadv",opts:["Less than 25%","25–50%","51–75%","More than 75%","Unsure"]},
+  fs_q7:{name:"q7_tech_director",opts:["Yes","No"]},
+  fs_q8:{name:"q8_overall_familiarity",opts:["1 — Not at all familiar","2 — Slightly familiar","3 — Moderately familiar","4 — Familiar","5 — Very familiar"]},
+  fs_q11:{name:"q11_personal_use",opts:["Never","Tried once or twice","Monthly","Weekly","Daily"]},
+  fs_q12:{name:"q12_board_confidence",opts:["1 — Not at all confident","2 — Slightly confident","3 — Moderately confident","4 — Confident","5 — Very confident"]},
+  fs_q13:{name:"q13_formal_training",opts:["Yes — I have","Yes — my cabinet has","Yes — both","No, but training is planned","No"]},
+  fs_q14:{name:"q14_adoption_stage",opts:["No use and no current plans","Exploring informally","Piloting in limited areas","Adopted in some departments or schools","Widely adopted with governance in place"]},
+  fs_q17:{name:"q17_policy_status",opts:["Formal AI policy adopted","Policy in development","Informal guidelines only","No policy or guidelines"]},
+  fs_q18:{name:"q18_teacher_permission",opts:["Permitted with guidance","Permitted case-by-case","Discouraged","Prohibited","No position taken"]},
+  fs_q19:{name:"q19_student_permission",opts:["Permitted with guidance","Permitted case-by-case","Discouraged","Prohibited","No position taken"]},
+  fs_q20:{name:"q20_pct_teachers_using",opts:["0–10%","11–25%","26–50%","More than 50%","Unsure"]},
+  fs_q29:{name:"q29_priority_12mo",opts:["Developing policy","Staff training / professional development","Piloting instructional AI tools","Piloting operational AI tools","Community and board engagement","AI is not a priority right now","Unsure"]},
+  fs_q31:{name:"q31_followup",opts:["Yes","No"]}
+};
+
+/* Checkbox question definitions */
+var CHECKS = {
+  fs_q10:{name:"q10_info_sources",opts:["Professional associations (PASA, PSBA, PAIU)","Conferences and workshops","Peer superintendents","News media","Vendors","District staff","My own experimentation","Other"]},
+  fs_q15:{name:"q15_instructional_uses",opts:["Lesson planning support for teachers","Creating differentiated materials","AI tutoring or intervention tools for students","Teaching students AI literacy","IEP drafting support","Translation and family communication","None currently"]},
+  fs_q16:{name:"q16_operational_uses",opts:["Communications and drafting (letters, newsletters)","HR and recruiting","Scheduling or transportation","Budgeting and data analysis","Board reports and presentations","Food service or facilities","None currently"]},
+  fs_q17a:{name:"q17a_policy_coverage",opts:["Staff use of AI","Student use of AI","Academic integrity","Data privacy","Procurement / tool vetting"]},
+  fs_q24:{name:"q24_incidents",opts:["Academic integrity case involving AI","Data privacy issue","Inappropriate AI-generated content","Deepfake or impersonation involving students or staff","Parent or community complaint about AI","None"]},
+  fs_q25:{name:"q25_concern_reducers",opts:["State guidance from PDE","Model policies I can adapt","Legal clarity on liability and privacy","Vetted lists of safe tools","Dedicated funding","Staff professional development","Examples from peer districts"]},
+  fs_q30:{name:"q30_support_wanted",opts:["Guidance documents from PDE","Training led by my Intermediate Unit","University partnerships","Vendor-neutral tool evaluations","Peer superintendent networks","Dedicated state or federal funding streams"]}
+};
+
+/* Matrix definitions */
+var MATRICES = {
+  matrix_q9:{prefix:"q9",scale:["1","2","3","4","5","Unsure"],rows:[
+    ["gen_ai_chatbots","Generative AI chatbots (ChatGPT, Gemini, Claude)"],
+    ["ai_in_edtech","AI inside existing edtech (adaptive learning, plagiarism detection)"],
+    ["policy_governance","AI policy and governance issues"],
+    ["data_privacy","Data privacy implications (FERPA / PPRA)"],
+    ["ai_literacy","AI literacy as a student skill"]],required:false},
+  matrix_q22:{prefix:"q22",scale:["Not a concern","Minor","Moderate","Major","Unsure"],rows:[
+    ["privacy","Student data privacy & FERPA compliance"],
+    ["integrity","Academic integrity / cheating"],
+    ["accuracy","Accuracy & misinformation (“hallucinations”)"],
+    ["equity","Equity of access across student groups"],
+    ["critical_thinking","Loss of critical thinking skills"],
+    ["staff_jobs","Impact on staff jobs"],
+    ["cost","Budget / cost of tools"],
+    ["training_capacity","Lack of staff training capacity"],
+    ["vendor_claims","Vendor claims outpacing evidence"],
+    ["legal","Legal / liability exposure"],
+    ["community","Community or board resistance"]],required:true},
+  matrix_q27:{prefix:"q27",scale:["No potential","Low","Moderate","High","Unsure"],rows:[
+    ["personalized","Personalized learning"],
+    ["workload","Teacher workload reduction (planning, grading)"],
+    ["sped","Special education support (IEPs, accommodations)"],
+    ["multilingual","Multilingual family engagement"],
+    ["early_warning","Early-warning / dropout prevention analytics"],
+    ["operations","Operational efficiency (transportation, scheduling, energy)"],
+    ["admin_time","Administrative time savings"],
+    ["shortages","Addressing staff shortages"],
+    ["counseling","College & career counseling"],
+    ["curriculum","Curriculum development"]],required:true}
+};
+
+/* ---------------- BUILD UI ---------------- */
+function el(tag,attrs,html){var e=document.createElement(tag);if(attrs)for(var k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;return e;}
+
+// counties
+var sel=document.getElementById("q2");
+COUNTIES.forEach(function(c){sel.appendChild(el("option",{value:c},c));});
+
+// radios
+Object.keys(RADIOS).forEach(function(fsId){
+  var def=RADIOS[fsId],fs=document.getElementById(fsId);
+  def.opts.forEach(function(opt){
+    var lab=el("label",{class:"choice"});
+    var inp=el("input",{type:"radio",name:def.name,value:opt});
+    lab.appendChild(inp);lab.appendChild(el("span",null,opt));
+    fs.appendChild(lab);
+  });
+});
+
+// checkboxes
+Object.keys(CHECKS).forEach(function(fsId){
+  var def=CHECKS[fsId],fs=document.getElementById(fsId);
+  def.opts.forEach(function(opt){
+    var lab=el("label",{class:"choice"});
+    var inp=el("input",{type:"checkbox",name:def.name,value:opt});
+    lab.appendChild(inp);lab.appendChild(el("span",null,opt));
+    fs.appendChild(lab);
+  });
+});
+
+// matrices
+Object.keys(MATRICES).forEach(function(mId){
+  var def=MATRICES[mId],wrap=document.getElementById(mId);
+  var t=el("table",{class:"matrix"});
+  var thead=el("thead"),hr=el("tr");
+  hr.appendChild(el("th",null,""));
+  def.scale.forEach(function(s){hr.appendChild(el("th",{scope:"col"},s));});
+  thead.appendChild(hr);t.appendChild(thead);
+  var tb=el("tbody");
+  def.rows.forEach(function(row){
+    var tr=el("tr");
+    tr.appendChild(el("td",null,row[1]));
+    def.scale.forEach(function(s){
+      var td=el("td");
+      var lab=el("label",{class:"cell-label"});
+      var inp=el("input",{type:"radio",name:def.prefix+"_"+row[0],value:s,"aria-label":row[1]+": "+s});
+      lab.appendChild(inp);
+      var sp=el("span",{class:"mobile-scale-label"},s);
+      sp.style.display="none";lab.appendChild(sp);
+      td.appendChild(lab);tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);wrap.appendChild(t);
+});
+// show scale text next to radios on mobile
+var mq=(window.matchMedia?window.matchMedia("(max-width:640px)"):{matches:false});
+function mobileLabels(){document.querySelectorAll(".mobile-scale-label").forEach(function(s){s.style.display=mq.matches?"inline":"none";});}
+if(mq.addEventListener){mq.addEventListener("change",mobileLabels);}else if(mq.addListener){mq.addListener(mobileLabels);}
+mobileLabels();
+
+// rank selects for Q23 from Q22 rows
+["q23r1","q23r2","q23r3"].forEach(function(id){
+  var s=document.getElementById(id);
+  s.appendChild(el("option",{value:""},"Select…"));
+  MATRICES.matrix_q22.rows.forEach(function(r){s.appendChild(el("option",{value:r[1]},r[1]));});
+});
+
+// conditional displays
+document.getElementById("fs_q17").addEventListener("change",function(){
+  var v=getRadio("q17_policy_status");
+  document.getElementById("cond_q17a").style.display=(v==="Formal AI policy adopted"||v==="Policy in development")?"block":"none";
+});
+document.getElementById("fs_q31").addEventListener("change",function(){
+  document.getElementById("cond_q31a").style.display=getRadio("q31_followup")==="Yes"?"block":"none";
+});
+
+/* ---------------- STATE & PERSISTENCE ---------------- */
+var form=document.getElementById("surveyForm");
+var LS_KEY="pa_supt_ai_survey_v1";
+function saveState(){
+  try{
+    var data=collect(false);
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
+  }catch(e){/* storage unavailable — in-memory only */}
+}
+function restoreState(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    var data=JSON.parse(raw);
+    Object.keys(data).forEach(function(name){
+      var val=data[name];
+      var inputs=form.querySelectorAll('[name="'+name+'"]');
+      if(!inputs.length)return;
+      var first=inputs[0];
+      if(first.type==="radio"){inputs.forEach(function(i){i.checked=(i.value===val);});}
+      else if(first.type==="checkbox"){var vals=String(val).split("; ");inputs.forEach(function(i){i.checked=vals.indexOf(i.value)>-1;});}
+      else{first.value=val;}
+    });
+    // re-trigger conditionals
+    document.getElementById("fs_q17").dispatchEvent(new Event("change"));
+    document.getElementById("fs_q31").dispatchEvent(new Event("change"));
+  }catch(e){}
+}
+form.addEventListener("change",saveState);
+form.addEventListener("input",saveState);
+restoreState();
+
+/* ---------------- NAVIGATION ---------------- */
+var current=0,TOTAL=5;
+function showSection(n){
+  document.querySelectorAll(".section-card").forEach(function(s){
+    s.classList.toggle("active",Number(s.getAttribute("data-section"))===n);
+  });
+  var pw=document.getElementById("progressWrap");
+  if(n>=1){
+    pw.style.display="block";
+    document.getElementById("sectionLabel").textContent="Section "+n+" of "+TOTAL;
+    var pct=Math.round(((n-1)/TOTAL)*100);
+    document.getElementById("pctLabel").textContent=pct+"% complete";
+    document.getElementById("progressFill").style.width=pct+"%";
+  }else{pw.style.display="none";}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function getRadio(name){var c=form.querySelector('input[name="'+name+'"]:checked');return c?c.value:"";}
+function validate(n){
+  var err=document.getElementById("err"+n);
+  var msg="";
+  if(n===0 && !document.getElementById("consent").checked) msg="Please check the consent box to begin.";
+  if(n===3 && !getRadio("q14_adoption_stage")) msg="Please answer Q14 (adoption stage) before continuing.";
+  if(n===4){
+    var missing=MATRICES.matrix_q22.rows.filter(function(r){return !getRadio("q22_"+r[0]);});
+    if(missing.length) msg="Please rate every item in Q22 (you can choose “Unsure”). Missing: "+missing.length+" item(s).";
+  }
+  if(n===5){
+    var m27=MATRICES.matrix_q27.rows.filter(function(r){return !getRadio("q27_"+r[0]);});
+    if(m27.length) msg="Please rate every item in Q27 (you can choose “Unsure”). Missing: "+m27.length+" item(s).";
+    else if(!document.getElementById("q28").value.trim()) msg="Please answer Q28 — the one problem you would want AI to solve.";
+  }
+  if(msg){err.textContent=msg;err.style.display="block";err.scrollIntoView({behavior:"smooth",block:"center"});return false;}
+  err.style.display="none";return true;
+}
+window.nextSection=function(){if(!validate(current))return;if(current<TOTAL){current++;showSection(current);}};
+window.prevSection=function(){if(current>0){current--;showSection(current);}};
+
+/* ---------------- COLLECT & EXPORT ---------------- */
+var COLUMN_ORDER=["meta_timestamp","meta_survey_version","meta_duration_minutes",
+"q1_district_name","q2_county","q3_district_type","q4_enrollment","q5_years_super","q6_econ_disadv","q7_tech_director",
+"q8_overall_familiarity",
+"q9_gen_ai_chatbots","q9_ai_in_edtech","q9_policy_governance","q9_data_privacy","q9_ai_literacy",
+"q10_info_sources","q11_personal_use","q12_board_confidence","q13_formal_training",
+"q14_adoption_stage","q15_instructional_uses","q16_operational_uses","q17_policy_status","q17a_policy_coverage",
+"q18_teacher_permission","q19_student_permission","q20_pct_teachers_using","q21_success_story",
+"q22_privacy","q22_integrity","q22_accuracy","q22_equity","q22_critical_thinking","q22_staff_jobs","q22_cost","q22_training_capacity","q22_vendor_claims","q22_legal","q22_community",
+"q23_rank1","q23_rank2","q23_rank3","q24_incidents","q25_concern_reducers","q26_biggest_worry",
+"q27_personalized","q27_workload","q27_sped","q27_multilingual","q27_early_warning","q27_operations","q27_admin_time","q27_shortages","q27_counseling","q27_curriculum",
+"q28_one_problem","q29_priority_12mo","q30_support_wanted","q31_followup","q31a_email","q32_final_comments"];
+
+function collect(withMeta){
+  var data={};
+  var seen={};
+  form.querySelectorAll("input,select,textarea").forEach(function(inp){
+    var name=inp.name;if(!name||name==="consent")return;
+    if(inp.type==="radio"){if(inp.checked)data[name]=inp.value;else if(!(name in data))data[name]=data[name]||"";}
+    else if(inp.type==="checkbox"){
+      if(!seen[name]){seen[name]=[];}
+      if(inp.checked)seen[name].push(inp.value);
+      data[name]=seen[name].join("; ");
+    }
+    else{data[name]=inp.value;}
+  });
+  if(withMeta){
+    data.meta_timestamp=new Date().toISOString();
+    data.meta_survey_version=SURVEY_VERSION;
+    data.meta_duration_minutes=Math.round((Date.now()-startTime)/6000)/10;
+  }
+  return data;
+}
+function csvEscape(v){
+  v=(v==null?"":String(v));
+  if(/[",\n\r]/.test(v))v='"'+v.replace(/"/g,'""')+'"';
+  return v;
+}
+function buildCSV(data){
+  var header=COLUMN_ORDER.join(",");
+  var row=COLUMN_ORDER.map(function(c){return csvEscape(data[c]||"");}).join(",");
+  return header+"\r\n"+row+"\r\n";
+}
+function downloadBlob(content,filename,type){
+  var blob=new Blob([content],{type:type});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);
+}
+var lastCSV="",lastJSON="",lastBase="";
+function doDownloads(){
+  downloadBlob(lastCSV,lastBase+".csv","text/csv;charset=utf-8");
+  setTimeout(function(){downloadBlob(lastJSON,lastBase+".json","application/json");},400);
+}
+window.downloadAgain=doDownloads;
+
+function showConfirmation(success){
+  document.getElementById("surveyForm").style.display="none";
+  document.getElementById("progressWrap").style.display="none";
+  document.getElementById("confirmation").style.display="block";
+  document.getElementById("confSuccess").style.display=success?"block":"none";
+  document.getElementById("confFallback").style.display=success?"none":"block";
+  if(!success){
+    doDownloads();
+    document.getElementById("responseText").value=lastJSON;
+    var subject=encodeURIComponent("PA Superintendent AI Survey Response");
+    var body=encodeURIComponent("My survey response file is attached.\n\n(If the file didn't download, I've pasted my responses below.)\n\n");
+    document.getElementById("mailtoLink").href="mailto:"+RETURN_EMAIL+"?subject="+subject+"&body="+body;
+  }
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+window.submitSurvey=function(){
+  if(!validate(5))return;
+  var data=collect(true);
+  lastCSV=buildCSV(data);
+  lastJSON=JSON.stringify(data,null,2);
+  var dn=(data.q1_district_name||"district").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"")||"district";
+  lastBase="AI_Survey_Response_"+dn+"_"+new Date().toISOString().slice(0,10);
+  var btn=document.querySelector('[data-section="5"] button.primary');
+  if(btn){btn.disabled=true;btn.textContent="Submitting…";}
+  function fallback(){if(btn){btn.disabled=false;btn.textContent="Submit & Download My Responses";}showConfirmation(false);}
+  if(WEB3FORMS_ACCESS_KEY.indexOf("YOUR_ACCESS_KEY")>-1 || !window.fetch){fallback();return;}
+  var payload={
+    access_key:WEB3FORMS_ACCESS_KEY,
+    subject:"PA Superintendent AI Survey Response — "+(data.q1_district_name||"district not named"),
+    from_name:"PA AI Survey"
+  };
+  Object.keys(data).forEach(function(k){payload[k]=data[k];});
+  payload.csv_header=COLUMN_ORDER.join(",");
+  payload.csv_row=COLUMN_ORDER.map(function(c){return csvEscape(data[c]||"");}).join(",");
+  var timer=setTimeout(fallback,12000);var done=false;
+  fetch(FORM_ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Accept":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(function(res){
+    if(done)return;done=true;clearTimeout(timer);
+    if(res.ok){showConfirmation(true);}else{fallback();}
+  }).catch(function(){
+    if(done)return;done=true;clearTimeout(timer);fallback();
+  });
+};
+
+showSection(0);
+})();
+</script>
+</body>
+</html>
