@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sagebridge · AI Readiness Diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#EFF1ED; --paper:#FFFFFF; --ink:#1B211D; --ink-soft:#3E463F; --muted:#727B72;
+    --line:#DBE0D8; --sage:#2E5647; --sage-mid:#4E7563; --sage-deep:#213F34;
+    --sage-tint:rgba(46,86,71,0.09); --sage-tint-2:rgba(46,86,71,0.16);
+    --brass:#A6791E; --brass-tint:rgba(166,121,30,0.13);
+    --panel:#13251D; --panel-2:#0C1712;
+    --on-dark-sage:#6FC7A5; --on-dark-sage-soft:rgba(111,199,165,0.17); --on-dark-sage-dot:#9EE6C6;
+    --serif:'Spectral', Georgia, 'Times New Roman', serif;
+    --sans:'Instrument Sans', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--canvas);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  body{min-height:100vh;display:flex;flex-direction:column}
+  .wrap{width:100%;max-width:1000px;margin:0 auto;padding:0 24px;flex:1;display:flex;flex-direction:column}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--sage);font-weight:500}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:22px 0 0;gap:16px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .mark{width:30px;height:30px;flex:none}
+  .brand .wm{display:flex;flex-direction:column;line-height:1.15}
+  .brand .wm .n{font-family:var(--mono);font-size:12.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink);font-weight:500}
+  .brand .wm .s{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .topbar .step{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted)}
+
+  /* intro */
+  .intro{flex:1;display:flex;flex-direction:column;justify-content:center;padding:52px 0 64px;max-width:700px}
+  .intro h1{font-family:var(--serif);font-weight:500;font-size:clamp(37px,5.8vw,58px);line-height:1.05;letter-spacing:-0.015em;margin:20px 0 0}
+  .intro h1 em{font-style:italic;color:var(--sage)}
+  .intro .lede{font-size:18px;color:var(--ink-soft);margin-top:22px;max-width:580px}
+  .intro .meta{display:flex;gap:26px;margin-top:30px;flex-wrap:wrap}
+  .intro .meta div{display:flex;flex-direction:column;gap:3px}
+  .intro .meta .k{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .intro .meta .v{font-size:15px;color:var(--ink);font-weight:500}
+  .fields{display:flex;gap:16px;margin-top:34px;flex-wrap:wrap}
+  .field{flex:1;min-width:230px}
+  .field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+  .field input,.field select{width:100%;font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 15px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+  .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23727B72' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;padding-right:38px}
+  .field input:focus,.field select:focus{border-color:var(--sage);box-shadow:0 0 0 3px var(--sage-tint)}
+
+  .btn{font-family:var(--sans);font-weight:600;font-size:15px;border:none;border-radius:9px;padding:14px 26px;cursor:pointer;transition:transform .12s ease,background .15s,box-shadow .15s;display:inline-flex;align-items:center;gap:10px}
+  .btn:focus-visible{outline:3px solid var(--sage-tint-2);outline-offset:2px}
+  .btn-primary{background:var(--sage);color:#fff}
+  .btn-primary:hover{background:var(--sage-deep);transform:translateY(-1px)}
+  .btn-primary .arw{transition:transform .18s}
+  .btn-primary:hover .arw{transform:translateX(3px)}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--muted);color:var(--ink)}
+  .btn-sm{font-size:13px;padding:9px 15px;border-radius:8px}
+  .btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+  .btn-row{display:flex;gap:12px;align-items:center;margin-top:36px;flex-wrap:wrap}
+
+  /* quiz */
+  .quiz{flex:1;display:flex;flex-direction:column;padding:26px 0 40px}
+  .progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:14px 0 0}
+  .progress > i{display:block;height:100%;background:var(--sage);border-radius:2px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .qhead{margin-top:38px}
+  .qhead .phase{display:flex;align-items:center;gap:12px}
+  .qhead .phase .tag{font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);font-weight:500}
+  .qhead .phase .n{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted)}
+  .qhead h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,3.4vw,33px);line-height:1.16;letter-spacing:-0.01em;margin:15px 0 0;max-width:790px}
+  .qhead .measures{font-size:15px;color:var(--muted);margin-top:11px;max-width:660px}
+
+  /* learn / education disclosure (button-controlled) */
+  .learn{margin-top:18px;border:1px solid var(--line);border-radius:11px;background:var(--paper);overflow:hidden}
+  .learn .learn-sum{width:100%;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--sage);font-weight:500;user-select:none;background:none;border:none;text-align:left}
+  .learn .learn-sum .ic{width:18px;height:18px;border:1px solid var(--sage);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:var(--sage);transition:transform .2s;font-size:12px;line-height:1}
+  .learn.open .learn-sum{border-bottom:1px solid var(--line);background:var(--sage-tint)}
+  .learn.open .learn-sum .ic{transform:rotate(45deg)}
+  .learn .learn-sum:hover{background:var(--sage-tint)}
+  .learn .learn-sum:focus-visible{outline:3px solid var(--sage-tint-2);outline-offset:-3px}
+  .learn .lb{padding:16px 18px 18px}
+  .learn .lb p{font-size:14.5px;color:var(--ink-soft);margin:0 0 12px}
+  .learn .lb p:last-child{margin-bottom:0}
+  .learn .split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 12px}
+  @media(max-width:620px){.learn .split{grid-template-columns:1fr}}
+  .learn .cell{border:1px solid var(--line);border-radius:9px;padding:11px 13px;background:var(--canvas)}
+  .learn .cell .k{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:5px;font-weight:500}
+  .learn .cell.er .k{color:var(--brass)} .learn .cell.du .k{color:var(--sage)}
+  .learn .cell p{font-size:13px;color:var(--ink-soft);margin:0}
+  .learn .ex{border-left:3px solid var(--sage);background:var(--canvas);border-radius:0 8px 8px 0;padding:11px 14px}
+  .learn .ex .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--sage);font-weight:500;margin-right:8px}
+  .learn .ex span.t{font-size:13.5px;color:var(--ink-soft);font-style:italic}
+
+  .levels{margin-top:22px;display:flex;flex-direction:column;gap:9px}
+  .lvl{display:flex;align-items:flex-start;gap:16px;text-align:left;width:100%;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:15px 17px;cursor:pointer;transition:border-color .14s,box-shadow .14s,background .14s;font-family:var(--sans)}
+  .lvl:hover{border-color:var(--sage);box-shadow:0 2px 14px rgba(46,86,71,0.07)}
+  .lvl:focus-visible{outline:3px solid var(--sage-tint-2);outline-offset:2px}
+  .lvl .num{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--muted);width:30px;height:30px;flex:none;border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;transition:.14s;margin-top:1px}
+  .lvl .txt{font-size:15px;color:var(--ink-soft);padding-top:4px}
+  .lvl.between .txt{color:var(--muted);font-style:italic}
+  .lvl[aria-pressed="true"]{border-color:var(--sage);background:var(--sage-tint)}
+  .lvl[aria-pressed="true"] .num{background:var(--sage);color:#fff;border-color:var(--sage)}
+  .lvl[aria-pressed="true"] .txt{color:var(--ink)}
+  .qnav{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:30px}
+
+  /* results */
+  .results{padding:22px 0 60px}
+  .r-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:26px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .r-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,40px);line-height:1.06;letter-spacing:-0.015em;margin-top:8px}
+  .r-head .co{color:var(--sage)}
+  .r-head .stamp{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--muted);text-align:right;line-height:1.7}
+  .r-tag{font-size:15px;color:var(--muted);font-style:italic;margin-top:14px;max-width:760px}
+.ind-lens{margin-top:16px;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:0 12px 12px 0;background:var(--paper);padding:16px 20px}
+  .ind-lens .il-k{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--brass);font-weight:500}
+  .ind-lens p{font-size:15px;color:var(--ink-soft);margin-top:8px;max-width:820px}
+
+  .sec-h{font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);font-weight:500;margin:34px 0 14px;display:flex;align-items:center;gap:12px}
+  .sec-h::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .r-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:30px;margin-top:26px;align-items:start}
+  @media(max-width:820px){.r-grid{grid-template-columns:1fr}}
+  .dial{background:linear-gradient(160deg,var(--panel),var(--panel-2));border-radius:16px;padding:20px 16px 14px;box-shadow:0 18px 40px -22px rgba(19,37,29,0.55)}
+  .dial .cap{display:flex;justify-content:space-between;align-items:center;padding:4px 8px 6px}
+  .dial .cap .t{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  .dial svg{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:18px;justify-content:center;padding:6px 8px 2px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,.68)}
+  .legend .sw{width:16px;height:0;border-top-width:2px;border-top-style:solid;display:inline-block}
+
+  .band{border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;background:var(--paper)}
+  .band .score{display:flex;align-items:baseline;gap:12px}
+  .band .score .big{font-family:var(--mono);font-weight:500;font-size:46px;letter-spacing:-0.02em;line-height:1}
+  .band .score .of{font-family:var(--mono);font-size:15px;color:var(--muted)}
+  .band .label{font-family:var(--serif);font-size:23px;font-weight:500;margin-top:12px}
+  .band .desc{font-size:15px;color:var(--ink-soft);margin-top:8px}
+
+  .phases{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .pcard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:var(--paper)}
+  .pcard .top{display:flex;justify-content:space-between;align-items:center}
+  .pcard .pn{font-family:var(--mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted)}
+  .pcard .ps{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--ink)}
+  .pcard .bar{height:4px;background:var(--line);border-radius:2px;margin-top:9px;overflow:hidden}
+  .pcard .bar > i{display:block;height:100%;background:var(--sage);border-radius:2px}
+  .pcard.low{border-color:var(--brass);background:var(--brass-tint)}
+  .pcard.low .bar > i{background:var(--brass)} .pcard.low .pn{color:var(--brass)}
+
+  .reads{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.reads{grid-template-columns:1fr}.phases{grid-template-columns:1fr}}
+  .read{border:1px solid var(--line);border-radius:13px;padding:19px 20px;background:var(--paper)}
+  .read.focus{border-left:3px solid var(--brass)} .read.strength{border-left:3px solid var(--sage)}
+  .read .rk{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)}
+  .read.focus .rk{color:var(--brass)} .read.strength .rk{color:var(--sage)}
+  .read h3{font-family:var(--serif);font-weight:500;font-size:20px;margin-top:9px}
+  .read p{font-size:14.5px;color:var(--ink-soft);margin-top:8px}
+
+  .synth{margin-top:16px;border:1px solid var(--line);border-radius:13px;padding:22px 24px;background:linear-gradient(180deg,var(--paper),#FAFBF9)}
+  .synth .rk{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--sage)}
+  .synth h3{font-family:var(--serif);font-weight:500;font-size:22px;margin-top:9px}
+  .synth p{font-size:15px;color:var(--ink-soft);margin-top:9px;max-width:780px}
+
+  /* moat matrix */
+  .matrix-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+  @media(max-width:760px){.matrix-grid{grid-template-columns:1fr}}
+  .matrix-card{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:16px}
+  .matrix-card svg{width:100%;height:auto;display:block}
+  .matrix-read .ql{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)}
+  .matrix-read h3{font-family:var(--serif);font-weight:500;font-size:24px;margin-top:8px;color:var(--sage-deep)}
+  .matrix-read p{font-size:15px;color:var(--ink-soft);margin-top:10px}
+  .matrix-read .r2w{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-soft)}
+  .matrix-read .r2w .dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:5px}
+
+  /* dimension detail */
+  .detail{display:flex;flex-direction:column;gap:10px}
+  .dcard{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:15px 17px;break-inside:avoid}
+  .dcard .dtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dcard .dnum{font-family:var(--mono);font-size:11px;color:var(--muted);width:26px}
+  .dcard .dname{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);flex:1;min-width:160px}
+  .dcard .dphase{font-family:var(--mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .dchip{font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .dchip.low{background:var(--brass-tint);color:var(--brass)}
+  .dchip.mid{background:var(--sage-tint);color:var(--sage-mid)}
+  .dchip.high{background:var(--sage);color:#fff}
+  .dcard .dinterp{font-size:14px;color:var(--ink-soft);margin-top:11px}
+  .dcard .dmove{font-size:13.5px;color:var(--ink-soft);margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);display:flex;gap:9px}
+  .dcard .dmove .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--sage);font-weight:500;flex:none;margin-top:2px}
+
+  /* priorities */
+  .plan{border:1px solid var(--line);border-radius:13px;background:var(--paper);padding:10px 20px}
+  .prow{display:flex;gap:16px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}
+  .prow:last-child{border-bottom:none}
+  .prow .pn{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--brass);line-height:1;width:26px;flex:none}
+  .prow .pc .pt{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--ink)}
+  .prow .pc .pt .sc{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:8px}
+  .prow .pc .pd{font-size:14px;color:var(--ink-soft);margin-top:5px}
+
+  .nextstep{margin-top:16px;border:1px solid var(--sage);border-radius:13px;padding:22px 24px;background:var(--sage-tint)}
+  .nextstep .rk{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--sage-deep)}
+  .nextstep h3{font-family:var(--serif);font-weight:500;font-size:21px;margin-top:9px;color:var(--sage-deep)}
+  .nextstep p{font-size:14.5px;color:var(--ink-soft);margin-top:8px;max-width:760px}
+  .disclaimer{margin-top:24px;font-size:13px;color:var(--muted);font-style:italic;max-width:760px}
+  .r-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+
+  footer{border-top:1px solid var(--line);padding:20px 0 26px;margin-top:20px}
+  footer .wrap{flex:none;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  footer .lp{font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:var(--muted)}
+
+  .hidden{display:none !important}
+  .fade{animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  #dataLayer{transform:scale(0);transform-origin:300px 250px;transition:transform .95s cubic-bezier(.16,.9,.2,1)}
+  #dataLayer.drawn{transform:scale(1)}
+  #matMark{opacity:0;transition:opacity .5s ease .5s}
+  #matMark.shown{opacity:1}
+  @media(prefers-reduced-motion:reduce){.fade{animation:none}#dataLayer{transition:none;transform:scale(1)}#matMark{transition:none;opacity:1}.progress>i{transition:none}}
+  @media print{
+    @page{ size:auto; margin:14mm 10mm; }
+    html,body{background:#fff;height:auto !important}
+    body,.wrap{display:block !important;min-height:0 !important;height:auto !important}
+    footer .wrap{display:flex !important}
+    .no-print{display:none !important}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+    /* cap the dial's size so it never grows tall enough to straddle a page break (which left its dark
+       background stranded on one page and the chart itself on the next) */
+    .dial{box-shadow:none;max-width:320px;margin:0 auto}
+    /* force chart animations to their finished state so the PDF never captures a mid-animation (blank) frame */
+    #dataLayer{transform:scale(1) !important;transition:none !important}
+    #matMark{opacity:1 !important;transition:none !important}
+    /* the dial/matrix SVGs need real room — never let them get squeezed into a cramped column */
+    .r-grid{grid-template-columns:1fr !important;gap:20px}
+    .matrix-grid{grid-template-columns:1fr !important;gap:20px}
+    .results{padding:0}
+    /* keep cards, rows and headings intact instead of splitting across a page boundary */
+    .sec-h{break-after:avoid;page-break-after:avoid}
+    .r-head,.ind-lens,.band,.read,.pcard,.synth,.matrix-card,.matrix-read,.dcard,.prow,.nextstep,.dial{
+      break-inside:avoid;page-break-inside:avoid
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar no-print">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <line x1="5" y1="18" x2="35" y2="18" stroke="var(--sage)" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M7 18 A 13 11 0 0 1 33 18" stroke="var(--sage)" stroke-width="2.2" fill="none"/>
+        <line x1="14" y1="18" x2="14" y2="10.5" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="26" y1="18" x2="26" y2="10.5" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="20" y1="18" x2="20" y2="7.2" stroke="var(--sage)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="8" y1="18" x2="8" y2="26" stroke="var(--sage-mid)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="32" y1="18" x2="32" y2="26" stroke="var(--sage-mid)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="wm"><span class="n">Sagebridge</span><span class="s">AI Advantage Loop</span></span>
+    </div>
+    <span class="step" id="topStep"></span>
+  </div>
+
+  <!-- INTRO -->
+  <section class="intro" id="screen-intro">
+    <span class="eyebrow">AI Readiness Diagnostic</span>
+    <h1>Mind the gap between AI <em>ambition</em> and AI <em>reality.</em></h1>
+    <p class="lede">Ten questions that show where your organization actually stands on AI — and, more importantly, whether your position grows <em>more defensible</em> or <em>more commoditized</em> as AI diffuses across your market.</p>
+    <div class="meta">
+      <div><span class="k">Time</span><span class="v">15–20 minutes</span></div>
+      <div><span class="k">Format</span><span class="v">10 questions · 4 phases</span></div>
+      <div><span class="k">You'll get</span><span class="v">A readiness profile, moat matrix &amp; action plan</span></div>
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label for="company">Company or team name <span style="text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span></label>
+        <input id="company" type="text" placeholder="e.g. Meridian Logistics" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="industry">Industry <span style="text-transform:none;letter-spacing:0;color:var(--muted)">(optional)</span></label>
+        <select id="industry">
+          <option value="">Select…</option>
+          <option>Manufacturing</option><option>Engineering / Construction</option><option>Professional Services</option>
+          <option>Field Services</option><option>Distribution</option><option>Investor Services</option>
+          <option>Healthcare</option><option>Higher Education</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="startBtn">Begin the assessment <span class="arw" aria-hidden="true">&rarr;</span></button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="quiz hidden" id="screen-quiz">
+    <div class="progress"><i id="progressBar" style="width:0%"></i></div>
+    <div class="qhead">
+      <div class="phase"><span class="tag" id="qPhase"></span><span class="n" id="qCount"></span></div>
+      <h2 id="qText"></h2>
+      <p class="measures" id="qMeasures"></p>
+    </div>
+    <div class="learn" id="learn">
+      <button type="button" class="learn-sum" id="learnToggle" aria-expanded="false"><span class="ic" aria-hidden="true">+</span><span>Why this matters</span></button>
+      <div class="lb" id="learnBody" hidden></div>
+    </div>
+    <div class="levels" id="levels"></div>
+    <div class="qnav">
+      <button class="btn btn-ghost" id="backBtn">&larr; Back</button>
+      <button class="btn btn-primary" id="nextBtn" disabled>Next <span class="arw" aria-hidden="true">&rarr;</span></button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="results hidden" id="screen-results">
+    <span class="eyebrow">Readiness Profile</span>
+    <div class="r-head">
+      <div><h2 id="rTitle">Your AI strategic readiness</h2></div>
+      <div class="stamp" id="rStamp"></div>
+    </div>
+    <p class="r-tag">In an AI-enabled market, advantage shifts from owning static assets to building systems that learn faster, integrate deeper, and compound over time. Here is where you stand.</p>
+<div class="ind-lens hidden" id="indLens">
+      <span class="il-k" id="indLabel"></span>
+      <p id="indText"></p>
+    </div>
+
+    <div class="r-grid">
+      <div class="dial">
+        <div class="cap"><span class="t">Readiness across ten dimensions</span><span class="t">1 &ndash; 5</span></div>
+        <div id="radarHolder"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div>
+        <div class="band">
+          <div class="score"><span class="big" id="rScore">0.0</span><span class="of">/ 5.0 overall</span></div>
+          <div class="label" id="rBand"></div>
+          <div class="desc" id="rBandDesc"></div>
+        </div>
+        <div class="phases" id="phaseCards"></div>
+      </div>
+    </div>
+
+    <div class="reads">
+      <div class="read focus"><span class="rk">Sharpest priority</span><h3 id="focusTitle"></h3><p id="focusText"></p></div>
+      <div class="read strength"><span class="rk">Strength to build on</span><h3 id="strengthTitle"></h3><p id="strengthText"></p></div>
+    </div>
+
+    <div class="synth">
+      <span class="rk">Where the work lies</span>
+      <h3 id="synthTitle"></h3>
+      <p id="synthText"></p>
+    </div>
+
+    <!-- MOAT MATRIX -->
+    <div class="sec-h">Your moat posture in the AI era</div>
+    <div class="matrix-grid">
+      <div class="matrix-card"><div id="matrixHolder"></div></div>
+      <div class="matrix-read">
+        <span class="ql">Where your position sits</span>
+        <h3 id="quadName"></h3>
+        <p id="quadRead"></p>
+        <div class="r2w"><span class="dot" id="r2wDot"></span><span id="r2wText"></span></div>
+      </div>
+    </div>
+
+    <!-- DIMENSION DETAIL -->
+    <div class="sec-h">Dimension by dimension</div>
+    <div class="detail" id="detail"></div>
+
+    <!-- PRIORITIES -->
+    <div class="sec-h">Your top priorities</div>
+    <div class="plan" id="plan"></div>
+
+    <div class="nextstep no-print">
+      <span class="rk">The Sagebridge next step</span>
+      <h3>Turn this profile into a costed, sequenced plan.</h3>
+      <p id="nextText">A Sagebridge Readiness &amp; Roadmap sprint converts these scores into a prioritized 6–18 month plan — then our embedded agile team helps you operationalize it. This diagnostic is where that conversation starts.</p>
+    </div>
+
+    <p class="disclaimer">This is a directional self-assessment, not an audit. Nothing is stored or sent anywhere — your answers live only in this browser tab. Its real value is the conversation it starts: every low score is a question worth an hour of the leadership team's time.</p>
+
+    <div class="r-actions no-print">
+      <button class="btn btn-primary" id="printBtn">Save as PDF</button>
+      <button class="btn btn-ghost" id="restartBtn">Start over</button>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span class="lp">Sagebridge &nbsp;·&nbsp; AI Transformation Consulting</span>
+    <span class="lp">The AI Advantage Loop &nbsp;·&nbsp; Orient · Assess · Commit · Adapt</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHASES = {
+    Orient: {q:[0,1,2], read:"You're setting strategy against a landscape you haven't mapped. Build a clear, specific point of view on how AI moves value in your industry before spending on tools."},
+    Assess: {q:[3,4,5], read:"You may be chasing prizes you can't defend or capture. Fix the foundation first — pin down which proprietary asset gives you a right to win, and whether you can actually execute."},
+    Commit: {q:[6,7,8], read:"You have insight but no resourced bets. This is pilot purgatory: the strategy exists on paper but not in the budget. Concentrate resources on a few sequenced moves."},
+    Adapt:  {q:[9], read:"You have a plan but no learning system. Model capability moves faster than annual planning — without a sensing-and-adapting loop, today's strategy is stale within two quarters."}
+  };
+
+  var Q = [
+    {phase:"Orient", label:["Disruption","Thesis"],
+     text:"How clear is our thesis for how AI reshapes the economics of our industry?",
+     measures:"Whether we have a specific, testable view of what gets commoditized and where value migrates.",
+     a:{1:"No real point of view. We talk about AI in terms of tools, not economics.",3:"A general sense that AI matters, but no specific, testable thesis on where value moves.",5:"A crisp, falsifiable thesis on what AI commoditizes and where value migrates — and we use it."},
+     lens:"Every technology shift redistributes profit by changing what is scarce. AI collapses the cost of cognition — reading, writing, analysis, coding — so advantage migrates to whatever becomes the new bottleneck. A real thesis names, for your industry specifically, what gets commoditized and where the value moves.",
+     erodes:"Advantages built on cognitive labor being expensive — drafting, research, first-pass analysis.",
+     endures:"Whatever becomes the new constraint once cognition is cheap: judgment, trust, proprietary inputs.",
+     example:"'AI will help us' is not a thesis. 'AI makes underwriting labor cheap, so advantage shifts to our proprietary default data' is — and you can act on it.",
+     bands:{low:"You're operating without a point of view on how AI changes your industry's economics, so every downstream AI choice is a guess.",mid:"You sense AI matters but lack a specific, testable thesis. That vagueness makes it hard to prioritize investment or defend it to the board.",high:"You hold a crisp, falsifiable thesis on what AI commoditizes and where value migrates — the foundation every other choice builds on."},
+     move:"Write one falsifiable sentence — 'AI collapses the cost of X, shifting advantage from Y to Z' — and name the evidence that would prove it wrong."},
+
+    {phase:"Orient", label:["Moat","Impact"],
+     text:"Do we know whether AI erodes or amplifies our sources of competitive advantage?",
+     measures:"Whether each moat has been stress-tested against AI, not just discussed in passing.",
+     a:{1:"We've never assessed whether AI strengthens or erodes our advantages.",3:"We've discussed it informally, but haven't stress-tested each moat or timed the erosion.",5:"Every moat stress-tested against AI; we know which amplify, which erode, and by when."},
+     lens:"AI dissolves some moats and compounds others. Advantages built on knowing how to do something — information asymmetry, generic expertise, process documentation, labor scale — erode as AI democratizes capability. Advantages built on hard-to-copy assets — proprietary data, embedded workflow, trust, regulation — grow stronger.",
+     erodes:"Information asymmetry, basic software features, generic knowledge work, process docs, labor arbitrage.",
+     endures:"Proprietary data, embedded workflows, switching costs, trust in high-stakes contexts, regulatory position.",
+     example:"The acid test: if every competitor had your AI model tomorrow, what advantage would remain? Whatever survives that question is your real moat.",
+     bands:{low:"You haven't stress-tested your advantages against AI, so some may be eroding on a clock you can't see.",mid:"You've discussed AI's effect informally but haven't classified each moat as amplified or eroding, or put a horizon on the ones at risk.",high:"You've stress-tested every moat, know which AI amplifies versus erodes, and have time horizons on the vulnerable ones."},
+     move:"Classify each advantage into eroding-fast / under-pressure / defensible-if-strengthened / increasingly-valuable, and put a time-to-erosion on the top risks."},
+
+    {phase:"Orient", label:["Customer","Shift"],
+     text:"Do we understand how AI is shifting what our customers expect and value?",
+     measures:"Whether we're tracking where the customer's bar is heading, not just where it is today.",
+     a:{1:"We assume customer expectations are stable and aren't tracking AI-driven shifts.",3:"We sense expectations are rising but haven't mapped table stakes vs. differentiators.",5:"We've mapped where expectations are heading and invest against the shift, not today's bar."},
+     lens:"Your competitors set the pace of customer expectations, not you. As AI makes instant, personalized, always-on service cheap, yesterday's delighter becomes table stakes. At the same time, in high-stakes contexts, human trust and accountability become more valued, not less.",
+     erodes:"Speed, availability, and basic personalization as sources of differentiation — soon expected of everyone.",
+     endures:"Trust, curation, and accountability where the stakes of being wrong are high.",
+     example:"When a rival answers in seconds at 2am, a two-day human turnaround stops reading as 'thorough' and starts reading as 'slow.'",
+     bands:{low:"You're optimizing for today's customer while the bar moves under you — and expectation resets tend to arrive suddenly.",mid:"You sense expectations are rising but haven't mapped what is becoming table stakes versus what stays a real differentiator.",high:"You've mapped where expectations are heading and invest against the shift, including where human trust becomes more valuable."},
+     move:"Write the 2027 customer complaint an AI-native rival would make possible — then decide what would have to be true for it to be impossible."},
+
+    {phase:"Assess", label:["Proprietary","Assets"],
+     text:"Have we identified the proprietary assets that become more valuable in an AI world?",
+     measures:"Whether we can name defensible crown jewels — not just say 'we have data'.",
+     a:{1:"We haven't identified which assets gain value with AI. 'We have data' is as far as it goes.",3:"We know we hold valuable assets but haven't tested their uniqueness or AI-relevance.",5:"Assets inventoried, crown jewels identified — and we can say why a startup couldn't copy them."},
+     lens:"When models are a commodity, advantage accrues to whoever owns what the model needs and can't download: proprietary, outcome-labeled data; embedded workflows; distribution; trust; regulatory position. The single most durable AI-era moat is proprietary data plus an embedded workflow — data no one else has, wired into a process customers already rely on.",
+     erodes:"Generic data, off-the-shelf tooling, and 'we have lots of data' claims that aren't unique or labeled.",
+     endures:"Proprietary, longitudinal, outcome-labeled data; workflow integration; privileged distribution.",
+     example:"Two firms run the same model; one has ten years of outcome-labeled data wired into the customer's daily workflow, the other has a chatbot. Same AI, opposite defensibility.",
+     bands:{low:"You haven't identified which assets gain value with AI. 'We have data' is not yet a moat — uniqueness, labeling, and legal usability are what matter.",mid:"You know you hold valuable assets but haven't rigorously tested their uniqueness or why a funded startup couldn't replicate them.",high:"You've inventoried your assets, named defensible crown jewels, and can articulate why they can't be bought off the shelf."},
+     move:"For each candidate asset, answer 'why couldn't a two-person startup with the same model replicate this in a year?' No hard answer means it's a to-do, not a moat."},
+
+    {phase:"Assess", label:["Value","Pools"],
+     text:"Have we mapped and sized where the AI value actually is?",
+     measures:"Whether opportunities are sized across cost, growth, and new models — or skewed to cost.",
+     a:{1:"We haven't sized the opportunity. Interest is scattered and mostly about cost.",3:"We have a list of ideas but little sizing, and a heavy skew toward cost over growth.",5:"Value pools mapped and sized across cost, growth, and new models — biggest prizes prioritized."},
+     lens:"AI value sits in three buckets: cost (efficiency — real, but quickly competed away), growth (better products, personalization, retention), and new models (offerings impossible before AI). The durable prizes usually live in growth and new models; a cost-only program shrinks efficiently while rivals grow.",
+     erodes:"Cost-only plays — everyone gets the same efficiency from the same tools, so it rarely compounds.",
+     endures:"Growth and new-model plays anchored to a proprietary asset that competitors can't replicate.",
+     example:"Deflecting support tickets is a cost play any rival copies. Turning your proprietary data into a new AI-enabled product is one that compounds.",
+     bands:{low:"You haven't sized the opportunity, and interest skews to cost — so the biggest, most defensible prizes are likely invisible.",mid:"You have a list of ideas but little sizing and a heavy cost tilt, which makes it hard to prioritize the prizes that compound.",high:"You've sized value across cost, growth, and new models and prioritized the biggest, most defensible prizes."},
+     move:"Force at least three growth or new-model ideas tied to a crown-jewel asset, and size the top three by prize and feasibility."},
+
+    {phase:"Assess", label:["Capability"],
+     text:"Are we actually capable of capturing the opportunity — from pilot to production?",
+     measures:"Whether data, talent, operating model, and adoption can carry an idea to scale.",
+     a:{1:"Data, talent, operating model, and adoption aren't ready. Pilots stall.",3:"Pockets of capability, but a real gap between pilot and production.",5:"We move ideas from pilot to scaled production — data, talent, model, and adoption are in place."},
+     lens:"Strategy is bounded by execution. The gap between a promising pilot and a scaled, production capability — data, talent, operating model, adoption — swallows more AI ambition than any competitor does. Advantage compounds only if you can move from pilot to production.",
+     erodes:"Pilot-stage novelty that never scales — impressive demos with no operational change behind them.",
+     endures:"An execution engine — data pipelines, talent, workflow redesign, adoption — that turns ideas into scaled reality.",
+     example:"A brilliant model the frontline won't use delivers nothing. Adoption and workflow redesign usually bind harder than the technology itself.",
+     bands:{low:"Data, talent, operating model, or adoption aren't ready, and pilots stall before they scale.",mid:"You have pockets of capability but a real, unclosed gap between pilot and production.",high:"You can take ideas from pilot to scaled production — the execution engine that turns strategy into advantage."},
+     move:"Run a pilot-to-production pre-mortem on your flagship use case and convert the top three failure causes into pre-conditions to fix now."},
+
+    {phase:"Commit", label:["Build / Buy","/ Partner"],
+     text:"Do we have discipline about where we adopt, build, or partner?",
+     measures:"Whether make/buy/partner calls follow a consistent logic tied to differentiation.",
+     a:{1:"Ad hoc calls — we sometimes build what we should simply buy.",3:"We decide case by case, without a consistent framework tied to differentiation.",5:"Clear discipline: adopt commodity, partner for speed, build only where an asset makes it defensible."},
+     lens:"Discipline is the whole game: adopt commodity capability (most things), partner for speed or shared risk, and build only where a proprietary asset makes it defensible. Almost no one should build foundation models; the advantage is what you build on top of them with your own data and workflow.",
+     erodes:"Building undifferentiated capability for prestige — burning scarce talent on what you could have bought.",
+     endures:"Building narrowly and deeply where you own the asset that makes it hard to copy.",
+     example:"Building a generic chatbot is AI theater; building a model on data only you own is a moat. Spend scarce talent only on the latter.",
+     bands:{low:"Sourcing is ad hoc — you risk building what you should buy and burning scarce talent on undifferentiated work.",mid:"You decide case by case without a consistent framework tied to differentiation.",high:"You have clear discipline: adopt, partner, or build based on whether a proprietary asset makes building defensible."},
+     move:"Route each initiative through one tree — differentiator? own the asset? can we maintain it? — and estimate the loaded cost of every 'build.'"},
+
+    {phase:"Commit", label:["Portfolio &","Sequencing"],
+     text:"Do we manage a balanced, sequenced portfolio of AI moves?",
+     measures:"Whether initiatives are balanced across no-regret / big bet / option and deliberately ordered.",
+     a:{1:"A scatter of disconnected pilots with no sequencing logic.",3:"Initiatives underway, but not balanced or deliberately sequenced.",5:"A balanced portfolio (no-regret / big bet / option) with a sequenced roadmap and a clear first move."},
+     lens:"Under uncertainty you run a portfolio, not a single plan: no-regret moves (valuable in any future), big bets (few, well-resourced, tied to your right to win), and options (cheap rights to scale later). Then you sequence — early wins that build the data, skills, and credibility to unlock the big bet.",
+     erodes:"A scatter of disconnected pilots — motion without compounding, and nothing that unlocks the next move.",
+     endures:"A sequenced chain where each move builds the asset or capability that makes the next one possible.",
+     example:"A dozen disconnected pilots isn't a strategy. One sequenced chain where each move unlocks the next is.",
+     bands:{low:"A scatter of disconnected pilots with no sequencing logic — motion without compounding.",mid:"Initiatives are underway but not balanced across move-types or deliberately sequenced.",high:"You run a balanced, sequenced portfolio with a clear first domino that unlocks the bigger bets."},
+     move:"Sort initiatives into no-regret / big bet / option, resource the bets like bets, and name the first domino that unlocks the rest."},
+
+    {phase:"Commit", label:["Risk &","Governance"],
+     text:"Have we defined our AI risk appetite and how we govern it?",
+     measures:"Whether we have explicit bright lines and decision rights that let us deploy with confidence.",
+     a:{1:"No defined risk appetite or governance — we're either reckless or frozen.",3:"Some policies, but no explicit risk appetite, bright lines, or clear decision rights.",5:"Defined appetite, clear bright lines, and lightweight governance that lets us deploy with confidence."},
+     lens:"The goal is not zero risk — that means doing nothing. It's a deliberate risk appetite. In high-stakes and regulated contexts, governance is itself a moat: it slows entrants and reassures buyers, letting you deploy where rivals hesitate. Bright lines where they matter, speed everywhere else.",
+     erodes:"Both extremes — reckless deployment that invites an incident, and paralysis that cedes the market.",
+     endures:"Governance capability and regulatory trust that become a barrier to entry in risk-sensitive markets.",
+     example:"A single AI incident can set a program back years. Clear red lines and decision rights are what let you move fast safely.",
+     bands:{low:"No defined risk appetite or governance — you're either frozen or exposed.",mid:"Some policies, but no explicit appetite, bright lines, or clear decision rights.",high:"A defined appetite, clear bright lines, and lightweight governance that lets you deploy with confidence."},
+     move:"Draw three to five 'we will never use AI to…' lines (the front-page test) and name who decides, who reviews, and what escalates."},
+
+    {phase:"Adapt", label:["Sense &","Adapt"],
+     text:"Do we have a living system to sense change, measure impact, and re-strategize?",
+     measures:"Whether the strategy is a loop — metrics, cadence, triggers, and an owner — or a static plan.",
+     a:{1:"Our strategy, if we have one, is static — no metrics, cadence, or triggers.",3:"We review occasionally, but without defined metrics, triggers, or an owner.",5:"A living system: leading/lagging metrics, a fixed cadence, change-our-mind triggers, a named owner."},
+     lens:"Model capability improves faster than any annual planning cycle, so durable advantage comes from adaptive systems, not static plans. The AI-era flywheel: usage produces proprietary data, which improves models, which deepens adoption, which produces more usage. A sensing loop — metrics, triggers, and an owner — is what keeps you ahead.",
+     erodes:"Static, set-once strategies and one-off pilots — stale within two quarters as the frontier moves.",
+     endures:"Compounding flywheels: data network effects, model-improvement loops, and operational learning.",
+     example:"The winners don't 'have AI'; they run a learning system that competitors can't catch — data, model, and operational-learning loops that compound.",
+     bands:{low:"Your strategy is static — no metrics, cadence, or triggers — so it will be stale within two quarters.",mid:"You review occasionally but without defined metrics, change-our-mind triggers, or a named owner.",high:"You run a living system — leading/lagging metrics, a fixed cadence, pre-committed triggers, and an owner — the flywheel that compounds advantage."},
+     move:"Define one leading and one lagging metric per big bet, pre-commit the triggers that would change your mind, and name the loop's owner."}
+  ];
+
+  var BANDS = [
+    {min:0,   name:"Exposed",   d:"You're moving without a strategy. The risk isn't making a wrong bet — it's being outmaneuvered while you deliberate."},
+    {min:2.0, name:"Developing",d:"Real intent, foundational gaps. The groundwork isn't yet in place to convert ambition into durable advantage."},
+    {min:3.0, name:"Advancing", d:"Genuine progress with specific gaps. You're ahead of most; the work now is sharpening the thesis and sequencing the bets."},
+    {min:4.0, name:"Leading",   d:"Ahead of the field. The priority shifts from catching up to compounding the lead and defending it."}
+  ];
+
+  var QUAD = {
+    valuable:{name:"Increasingly valuable",read:"Your position combines hard-to-replicate assets with the ability to compound — exactly where advantage accrues as AI diffuses. Concentrate investment here and widen the gap while others are still catching up.",dot:"var(--sage)"},
+    defensible:{name:"Defensible if strengthened",read:"You hold hard-to-replicate assets, but they aren't yet compounding. Add the learning loops and execution muscle that turn a static moat into a flywheel before rivals close the gap on capability.",dot:"var(--sage-mid)"},
+    pressure:{name:"Under pressure",read:"You can improve quickly, but your advantages are replicable with the same models your rivals have. Anchor to a proprietary asset — data, workflow, trust — before the race commoditizes your position.",dot:"var(--brass)"},
+    eroding:{name:"Eroding fast",read:"Your current advantages are both easy to replicate and not yet compounding. This is the danger zone as AI diffuses: the task is reinvention around a defensible asset, not optimization of what you have.",dot:"#B4472E"}
+  };
+
+var INDUSTRY = {
+    "Manufacturing":"In manufacturing, AI quickly commoditizes generic scheduling, quality inspection, and documented process know-how — anything a competitor can buy off the shelf. Durable advantage concentrates in your proprietary operational data (machine telemetry, yield and defect history) wired into closed-loop control, and in the service and aftermarket models built on it; value migrates from efficient production toward data-rich, self-optimizing operations.",
+    "Engineering / Construction":"In engineering and construction, AI is compressing drafting, early-stage design exploration, estimating, and standards/spec retrieval—reducing the time and cost of the billable cognitive labor the model has traditionally relied on. However, these tasks are not eliminated; they are accelerated and increasingly automated within human-in-the-loop workflows, especially where liability is high. Competitive advantage is shifting toward firms that own proprietary project, cost, and as-built data; maintain strong safety and compliance records; and have established client trust in complex, high-risk environments. As a result, value is migrating away from hours billed and toward data leverage, reusable design systems, and outcome-based delivery models.",
+    "Professional Services":"In professional services, AI is compressing the value of routine research, drafting, and first-pass analysis—weakening the traditional leverage model built on junior billable hours and information asymmetry. The impact is uneven across domains but consistently reduces the scarcity of baseline expertise. Advantage is shifting toward firms that combine proprietary methodologies, outcome-linked data, and senior judgment with AI-enabled workflows embedded in client operations. As a result, value is migrating away from headcount leverage toward codified IP, measurable outcomes, and durable, trust-based client relationships.",
+    "Field Services":"In field services, AI is rapidly standardizing core operational functions such as dispatch, scheduling, and first-line diagnostics, reducing differentiation at the workflow level. Durable advantage increasingly comes from proprietary equipment data, longitudinal service histories, high-quality first-time-fix datasets, and the systematic capture of technician expertise as structured knowledge. As these data assets compound, switching costs rise through deeper system integration and embedded service relationships. As a result, value is shifting away from transaction-based truck rolls toward predictive, outcome-based service models, where providers are paid for uptime, performance, or risk reduction rather than individual service events.",
+    "Distribution":"In distribution, AI is rapidly standardizing capabilities like demand forecasting, catalog search, and order processing, reducing differentiation at the operational layer. Durable advantage is shifting toward proprietary transaction and supplier data, network density, and deeply embedded procurement workflows within customer operations. As a result, value is gradually moving away from margin-on-volume models toward differentiated category intelligence, predictive insights, and data-driven value-added services.",
+    "Investor Services":"In investor services, particularly among private wealth management firms, AI is automating much of the operational backbone—document handling, client onboarding, reporting, and components of portfolio construction and financial planning—while remaining embedded in advisor-led, high-trust workflows across tax, retirement, and estate planning, where it enhances scenario modeling and insight generation but does not replace fiduciary judgment. Competitive advantage is concentrating in proprietary, longitudinal client and household data that enable integrated personalization, embedded compliance and fiduciary infrastructure that creates barriers to entry, and trusted advisor-client relationships that anchor distribution and retention. As a result, value is shifting away from commoditized processing toward integrated planning intelligence, governance systems that operationalize fiduciary responsibility across domains, and control of client relationships and assets; notably, AI enables smaller firms to compete more effectively by delivering institution-grade, multi-domain advice, accelerating niche data advantages, and combining high-touch service with AI-augmented insight.",
+    "Healthcare":"In healthcare, AI is standardizing documentation, coding support, triage, and literature synthesis, compressing margins in traditional workflows. Competitive advantage is shifting to proprietary outcomes data, real-world model performance, and deep integration into EHR and care delivery. Regulatory capability, auditability, and clinician trust are becoming core assets. As payment models evolve, differentiation will come from improving outcomes and reducing variability—not increasing throughput.",
+    "Higher Education":"In higher education, AI commoditizes routine content delivery, generic tutoring, and many administrative workflows by making them cheaper, more scalable, and widely accessible beyond institutional boundaries. As these functions become less differentiating, advantage shifts toward trusted credentialing and reputation, proprietary learning-outcome and learner-behavior data, high-quality human mentorship and accountability, and deep employer and alumni networks that link learning to real opportunities. Institutional value migrates from owning content and controlling access toward demonstrable outcomes, personalization that integrates human and AI support, and resilient communities of practice that learners and employers rely on as signals of quality and fit.",
+    "Other":"Across the mid-market, AI is rapidly commoditizing routine cognitive work and standard software capabilities, reducing the value of tasks and tools that can be easily replicated. At the same time, it is increasing the importance of assets that are harder to copy: proprietary data, deeply embedded workflows, trusted relationships in high-stakes decisions, and favorable regulatory positioning. The strategic question is specific to your organization: which of your current advantages are becoming easier to replicate with AI, and which are becoming more defensible and valuable because of it?"
+  };
+  var state = { screen:"intro", company:"", industry:"", current:0, scores:new Array(Q.length).fill(null) };
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---------- navigation ----------
+  function show(screen){ state.screen=screen; ["intro","quiz","results"].forEach(function(s){ $("screen-"+s).classList.toggle("hidden",s!==screen); }); $("topStep").textContent=screen==="quiz"?"Question "+(state.current+1)+" of "+Q.length:(screen==="results"?"Complete":""); window.scrollTo({top:0,behavior:"auto"}); }
+  $("startBtn").addEventListener("click", function(){ state.company=$("company").value.trim(); state.industry=$("industry").value; state.current=0; show("quiz"); renderQuestion(); });
+  $("backBtn").addEventListener("click", function(){ if(state.current===0){ show("intro"); return; } state.current--; renderQuestion(); });
+  $("nextBtn").addEventListener("click", function(){ if(state.scores[state.current]===null) return; if(state.current===Q.length-1){ renderResults(); show("results"); return; } state.current++; renderQuestion(); });
+
+  // education panel toggle
+  $("learnToggle").addEventListener("click", function(){
+    var open=$("learn").classList.toggle("open");
+    $("learnBody").hidden=!open;
+    this.setAttribute("aria-expanded", open?"true":"false");
+  });
+
+  // ---------- question render ----------
+  function renderQuestion(){
+    var i=state.current, q=Q[i];
+    $("qPhase").textContent=q.phase;
+    $("qCount").textContent=String(i+1).padStart(2,"0")+" / "+Q.length;
+    $("qText").textContent=q.text;
+    $("qMeasures").textContent="Measures: "+q.measures;
+    $("progressBar").style.width=((i/Q.length)*100)+"%";
+    $("topStep").textContent="Question "+(i+1)+" of "+Q.length;
+
+    // education panel (reset to collapsed each question, then populate)
+    $("learn").classList.remove("open");
+    var lb=$("learnBody"); lb.hidden=true; $("learnToggle").setAttribute("aria-expanded","false");
+    lb.innerHTML =
+      '<p>'+q.lens+'</p>'+
+      '<div class="split">'+
+        '<div class="cell er"><span class="k">AI erodes</span><p>'+q.erodes+'</p></div>'+
+        '<div class="cell du"><span class="k">AI strengthens</span><p>'+q.endures+'</p></div>'+
+      '</div>'+
+      '<div class="ex"><span class="k">In practice</span><span class="t">'+q.example+'</span></div>';
+
+    var levelText={1:q.a[1],2:"In between — closer to the description above than below.",3:q.a[3],4:"In between — closer to the description above than below.",5:q.a[5]};
+    var host=$("levels"); host.innerHTML="";
+    host.classList.remove("fade"); void host.offsetWidth; host.classList.add("fade");
+    for(var lvl=1;lvl<=5;lvl++){ (function(lvl){
+      var btn=document.createElement("button");
+      btn.className="lvl"+(lvl===2||lvl===4?" between":""); btn.type="button";
+      btn.setAttribute("aria-pressed", state.scores[i]===lvl?"true":"false");
+      btn.innerHTML='<span class="num">'+lvl+'</span><span class="txt">'+levelText[lvl]+'</span>';
+      btn.addEventListener("click", function(){
+        state.scores[i]=lvl;
+        Array.prototype.forEach.call(host.children,function(c){ c.setAttribute("aria-pressed","false"); });
+        btn.setAttribute("aria-pressed","true");
+        $("nextBtn").disabled=false;
+        $("nextBtn").innerHTML=(i===Q.length-1)?'See results <span class="arw" aria-hidden="true">&rarr;</span>':'Next <span class="arw" aria-hidden="true">&rarr;</span>';
+      });
+      host.appendChild(btn);
+    })(lvl); }
+    $("nextBtn").disabled=state.scores[i]===null;
+    $("nextBtn").innerHTML=(i===Q.length-1)?'See results <span class="arw" aria-hidden="true">&rarr;</span>':'Next <span class="arw" aria-hidden="true">&rarr;</span>';
+    $("backBtn").textContent=(i===0)?"\u2190 Exit":"\u2190 Back";
+  }
+
+  // ---------- radar ----------
+  var CX=300, CY=250, R=180, N=Q.length, LR=R+22;
+  function pt(i,val){ var ang=(-90+i*(360/N))*Math.PI/180; var r=(val/5)*R; return [CX+r*Math.cos(ang), CY+r*Math.sin(ang)]; }
+  function ring(val){ var d=""; for(var i=0;i<N;i++){ var p=pt(i,val); d+=(i===0?"M":"L")+p[0].toFixed(1)+" "+p[1].toFixed(1)+" "; } return d+"Z"; }
+  function poly(vals){ var d=""; for(var k=0;k<N;k++){ var p=pt(k,vals[k]); d+=(k===0?"M":"L")+p[0].toFixed(1)+" "+p[1].toFixed(1)+" "; } return d+"Z"; }
+  function lowestIndex(s){ var lo=0; for(var i=1;i<s.length;i++){ if(s[i]<s[lo]) lo=i; } return lo; }
+  function highestIndex(s){ var hi=0; for(var i=1;i<s.length;i++){ if(s[i]>s[hi]) hi=i; } return hi; }
+  function buildRadar(scores){
+    var svg='<svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Radar chart of readiness scores">';
+    for(var g=1;g<=5;g++){ svg+='<path d="'+ring(g)+'" fill="none" stroke="rgba(255,255,255,'+(g===5?0.22:0.10)+')" stroke-width="1"/>'; }
+    for(var i=0;i<N;i++){ var edge=pt(i,5); svg+='<line x1="'+CX+'" y1="'+CY+'" x2="'+edge[0].toFixed(1)+'" y2="'+edge[1].toFixed(1)+'" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>';
+      var ang=(-90+i*(360/N))*Math.PI/180, lx=CX+LR*Math.cos(ang), ly=CY+LR*Math.sin(ang), cos=Math.cos(ang);
+      var anchor=cos>0.25?"start":(cos<-0.25?"end":"middle"); var lines=Q[i].label, dy=(Math.sin(ang)<-0.3?-(lines.length-1)*11:2);
+      svg+='<text x="'+lx.toFixed(1)+'" y="'+(ly+dy).toFixed(1)+'" text-anchor="'+anchor+'" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="rgba(255,255,255,0.82)">';
+      for(var L=0;L<lines.length;L++){ svg+='<tspan x="'+lx.toFixed(1)+'" dy="'+(L===0?0:12)+'">'+lines[L]+'</tspan>'; } svg+='</text>'; }
+    for(var v=1;v<=5;v++){ var vp=pt(0,v); svg+='<text x="'+(vp[0]+6)+'" y="'+(vp[1]+3).toFixed(1)+'" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="rgba(255,255,255,0.30)">'+v+'</text>'; }
+    svg+='<g id="dataLayer"><path d="'+poly(scores)+'" fill="var(--on-dark-sage-soft)" stroke="var(--on-dark-sage)" stroke-width="2" stroke-linejoin="round"/>';
+    var lo=lowestIndex(scores);
+    for(var m=0;m<N;m++){ var mp=pt(m,scores[m]); var isLow=(m===lo); svg+='<circle cx="'+mp[0].toFixed(1)+'" cy="'+mp[1].toFixed(1)+'" r="'+(isLow?4.5:3.2)+'" fill="'+(isLow?"#E0B24A":"var(--on-dark-sage-dot)")+'" stroke="'+(isLow?"#E0B24A":"var(--on-dark-sage)")+'" stroke-width="1"/>'; }
+    svg+='</g></svg>'; return svg;
+  }
+
+  // ---------- moat matrix ----------
+  function buildMatrix(replic, compound){
+    // replic (1-5, high = hard to replicate), compound (1-5, high = compounds)
+    var x0=64,y0=16,s=300, W=x0+s+16, Ht=y0+s+52;
+    var fracEasy=(5-replic)/4, compoundN=(compound-1)/4;
+    var px=x0+Math.max(0.04,Math.min(0.96,fracEasy))*s;
+    var py=y0+(1-Math.max(0.04,Math.min(0.96,compoundN)))*s;
+    var hard=replic>=3, comp=compound>=3;
+    var mx=x0+s/2, my=y0+s/2;
+    function qfill(cx,cy){ return '<rect x="'+cx+'" y="'+cy+'" width="'+(s/2)+'" height="'+(s/2)+'" fill="var(--sage-tint)"/>'; }
+    var svg='<svg viewBox="0 0 '+W+' '+Ht+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Moat matrix">';
+    var hx = hard? x0 : mx, hy = comp? y0 : my;
+    svg+=qfill(hx,hy);
+    svg+='<rect x="'+x0+'" y="'+y0+'" width="'+s+'" height="'+s+'" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+    svg+='<line x1="'+mx+'" y1="'+y0+'" x2="'+mx+'" y2="'+(y0+s)+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>';
+    svg+='<line x1="'+x0+'" y1="'+my+'" x2="'+(x0+s)+'" y2="'+my+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>';
+    function qlab(txt,cx,cy,active){ var col=active?"var(--sage-deep)":"var(--muted)"; var parts=txt.split("|");
+      var out='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="'+(active?"500":"400")+'" fill="'+col+'">';
+      for(var i=0;i<parts.length;i++){ out+='<tspan x="'+cx+'" dy="'+(i===0?0:13)+'">'+parts[i]+'</tspan>'; } return out+'</text>'; }
+    svg+=qlab("Increasingly|valuable", x0+s/4, y0+s/4-4, hard&&comp);
+    svg+=qlab("Under|pressure", x0+3*s/4, y0+s/4-4, !hard&&comp);
+    svg+=qlab("Defensible if|strengthened", x0+s/4, y0+3*s/4-4, hard&&!comp);
+    svg+=qlab("Eroding|fast", x0+3*s/4, y0+3*s/4-4, !hard&&!comp);
+    svg+='<text x="'+(x0)+'" y="'+(y0+s+22)+'" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">Hard to replicate</text>';
+    svg+='<text x="'+(x0+s)+'" y="'+(y0+s+22)+'" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">Easy to replicate</text>';
+    svg+='<text x="'+(x0+s/2)+'" y="'+(y0+s+40)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="0.12em" fill="var(--sage)">EASE OF REPLICATION WITH AI &#8594;</text>';
+    svg+='<text transform="translate('+(x0-42)+','+(y0+s)+') rotate(-90)" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">Static</text>';
+    svg+='<text transform="translate('+(x0-42)+','+(y0)+') rotate(-90)" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">Compounds</text>';
+    svg+='<text transform="translate('+(x0-28)+','+(y0+s/2)+') rotate(-90)" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="0.12em" fill="var(--sage)">ABILITY TO COMPOUND &#8594;</text>';
+    svg+='<g id="matMark"><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="9" fill="var(--sage)" fill-opacity="0.18"/>';
+    svg+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="5" fill="var(--sage)" stroke="#fff" stroke-width="1.5"/>';
+    var tx=px+ (fracEasy>0.7? -12:12), tAnchor= fracEasy>0.7?"end":"start";
+    svg+='<text x="'+tx.toFixed(1)+'" y="'+(py-11).toFixed(1)+'" text-anchor="'+tAnchor+'" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="500" fill="var(--sage-deep)">You</text></g>';
+    svg+='</svg>'; return svg;
+  }
+
+  // ---------- results ----------
+  function avg(idxs){ var s=0; for(var i=0;i<idxs.length;i++) s+=state.scores[idxs[i]]; return s/idxs.length; }
+  function bandOf(sc){ return sc<=2?"low":(sc>=4?"high":"mid"); }
+  function labelOf(i){ return Q[i].label.join(" ").replace(" / ","/"); }
+
+  function renderResults(){
+    var scores=state.scores.map(function(x){return x||1;});
+    var overall=scores.reduce(function(a,b){return a+b;},0)/scores.length;
+
+    $("rTitle").innerHTML = state.company ? '<span class="co">'+escapeHtml(state.company)+'</span> — AI strategic readiness' : "Your AI strategic readiness";
+    var d=new Date(), months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    $("rStamp").innerHTML = "Sagebridge · AI Advantage Loop<br>"+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();
+
+var il=$("indLens");
+    if(state.industry && INDUSTRY[state.industry]){
+      $("indLabel").textContent = "Industry lens · " + state.industry;
+      $("indText").textContent = INDUSTRY[state.industry];
+      il.classList.remove("hidden");
+    } else { il.classList.add("hidden"); }
+
+    $("radarHolder").innerHTML = buildRadar(scores);
+    var meLabel = state.company ? escapeHtml(state.company) : "This company";
+    $("legend").innerHTML = '<span><i class="sw" style="border-top-color:var(--on-dark-sage)"></i>'+meLabel+'</span>';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ var dl=$("dataLayer"); if(dl) dl.classList.add("drawn"); }); });
+
+    $("rScore").textContent=overall.toFixed(1);
+    var band=BANDS[0]; for(var b=0;b<BANDS.length;b++){ if(overall>=BANDS[b].min) band=BANDS[b]; }
+    $("rBand").textContent=band.name; $("rBandDesc").textContent=band.d;
+
+    // phase cards
+    var pc=$("phaseCards"); pc.innerHTML="";
+    var phaseNames=Object.keys(PHASES);
+    var phaseVals=phaseNames.map(function(p){ return {name:p, val:avg(PHASES[p].q)}; });
+    var lowPhaseVal=Math.min.apply(null, phaseVals.map(function(x){return x.val;}));
+    phaseVals.forEach(function(p){ var isLow=p.val===lowPhaseVal; var card=document.createElement("div"); card.className="pcard"+(isLow?" low":""); card.innerHTML='<div class="top"><span class="pn">'+p.name+'</span><span class="ps">'+p.val.toFixed(1)+'</span></div><div class="bar"><i style="width:'+((p.val/5)*100)+'%"></i></div>'; pc.appendChild(card); });
+
+    // sharpest / strength
+    var lo=lowestIndex(scores), hi=highestIndex(scores);
+    $("focusTitle").textContent=labelOf(lo); $("focusText").textContent="Your lowest score ("+scores[lo]+"/5). "+Q[lo].move;
+    $("strengthTitle").textContent=labelOf(hi); $("strengthText").textContent="Your highest score ("+scores[hi]+"/5). "+Q[hi].bands.high;
+
+    // where the work lies
+    var weakPhase=phaseVals.filter(function(x){return x.val===lowPhaseVal;})[0].name;
+    $("synthTitle").textContent="Start with "+weakPhase+"."; $("synthText").textContent=PHASES[weakPhase].read;
+
+    // moat matrix
+    var replic=(scores[3]+scores[1])/2;   // proprietary assets + moat impact
+    var compound=(scores[9]+scores[5])/2; // sense&adapt + capability
+    $("matrixHolder").innerHTML=buildMatrix(replic,compound);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ var mm=$("matMark"); if(mm) mm.classList.add("shown"); }); });
+    var hard=replic>=3, comp=compound>=3;
+    var quad = hard&&comp?"valuable":hard&&!comp?"defensible":!hard&&comp?"pressure":"eroding";
+    $("quadName").textContent=QUAD[quad].name; $("quadRead").textContent=QUAD[quad].read;
+    var r2w=avg([3,4,5]), dot=$("r2wDot"), txt=$("r2wText");
+    dot.style.background = r2w>=4?"var(--sage)":(r2w>=3?"var(--brass)":"#B4472E");
+    txt.innerHTML = "<b>Right to win ("+r2w.toFixed(1)+"/5):</b> " + (r2w>=4?"within reach — you own defensible assets, see the prize, and can execute. Concentrate here.":(r2w>=3?"forming — but at least one of asset, prize, or capability needs work before you commit.":"not yet established — pin down which proprietary asset lets you capture a real prize first."));
+
+    // dimension detail
+    var det=$("detail"); det.innerHTML="";
+    for(var i=0;i<Q.length;i++){
+      var sc=scores[i], bnd=bandOf(sc);
+      var card=document.createElement("div"); card.className="dcard";
+      card.innerHTML =
+        '<div class="dtop"><span class="dnum">'+(i+1<10?"0":"")+(i+1)+'</span>'+
+        '<span class="dname">'+labelOf(i)+'</span>'+
+        '<span class="dphase">'+Q[i].phase+'</span>'+
+        '<span class="dchip '+bnd+'">'+sc+' / 5</span></div>'+
+        '<div class="dinterp">'+Q[i].bands[bnd]+'</div>'+
+        '<div class="dmove"><span class="k">To strengthen</span><span>'+Q[i].move+'</span></div>';
+      det.appendChild(card);
+    }
+
+    // priorities: three lowest (ties broken by question order)
+    var order=scores.map(function(s,i){return {i:i,s:s};}).sort(function(a,b){ return a.s-b.s || a.i-b.i; });
+    var plan=$("plan"); plan.innerHTML="";
+    for(var p=0;p<3;p++){ var it=order[p];
+      var row=document.createElement("div"); row.className="prow";
+      row.innerHTML='<div class="pn">'+(p+1)+'</div><div class="pc"><div class="pt">'+labelOf(it.i)+'<span class="sc">scored '+it.s+'/5 · '+Q[it.i].phase+'</span></div><div class="pd">'+Q[it.i].move+'</div></div>';
+      plan.appendChild(row);
+    }
+
+    $("progressBar").style.width="100%";
+  }
+
+  function escapeHtml(s){ return s.replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+  $("printBtn").addEventListener("click", function(){ window.print(); });
+  $("restartBtn").addEventListener("click", function(){ state.current=0; state.scores=new Array(Q.length).fill(null); $("company").value=state.company; if(state.industry) $("industry").value=state.industry; show("intro"); });
+  $("company").addEventListener("keydown", function(e){ if(e.key==="Enter"){ $("startBtn").click(); } });
+
+  show("intro");
+})();
+</script>
+</body>
+</html>
